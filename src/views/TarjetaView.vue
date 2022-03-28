@@ -66,6 +66,12 @@
                   </span>
                 </template>
               </label>
+
+               <label>Usuario</label>
+            <input type="text" v-model="pagoInicial.email"/>
+
+
+
               <div class="card-item__content">
                 <label for="cardName" class="card-item__info" ref="cardName">
                   <div class="card-item__holder">Tarjeta</div>
@@ -157,12 +163,15 @@
           </div>
         </div>
 
-        <div type="text" class="bg-warning p-4">
-            Total desde el componente: ${{ $route.params.totalVar }}.-
+        <div class="bg-warning p-4">
+          <label>Total a Pagar </label>
+            <input type="text" v-model="pagoInicial.total"/>
+            $ {{$route.params.totalVar}} .-      
         </div> 
-        
-        <button class="card-form__button" @click="pagar()">
-          Confirmar
+          
+
+        <button class="card-form__button" @click="crearPago">
+            Confirmar
         </button>
       </div>
     </div>
@@ -171,13 +180,12 @@
   </div>
 </template>
 
-
 <script>
+import {mapState, mapMutations, mapActions} from 'vuex'
 
 export default {
     name: 'Tarjeta',
-    components:{
-      
+    components:{     
     },
 
     data() {
@@ -195,20 +203,25 @@ export default {
         isCardFlipped: false,
         focusElementStyle: null,
         isInputFocused: false,
+        emailLocal:'',
 
-         pago:{
-                usuario_id:'',
-                total:''
-            },
+  /*     pago:{
+              email:'',
+              total:'',
+              fecha:''
+          },
+    */
         }
     },
 
-    mounted() {
-        this.cardNumberTemp = this.otherCardMask;
-        document.getElementById("cardNumber").focus();
-    },
+     computed:{
+      ...mapState([
+          'pagos',
+          'pagoVar', 
+          'pagoInicial',
+          'emailVar'
+      ]),
 
-    computed: {
         getCardType () {
         let number = this.cardNumber;
         let re = new RegExp("^4");
@@ -236,6 +249,11 @@ export default {
         return 1;
         }
     },
+
+     mounted() {
+        this.cardNumberTemp = this.otherCardMask;
+        document.getElementById("cardNumber").focus();
+    },
     watch: {
         cardYear () {
         if (this.cardMonth < this.minCardMonth) {
@@ -244,7 +262,14 @@ export default {
         }
     },
 
-    methods: {
+     methods:{
+            ...mapMutations([
+           
+            ]),
+            ...mapActions([
+                'crearPago'
+            ]),
+
         flipCard (status) {
         this.isCardFlipped = status;
         },
@@ -272,8 +297,6 @@ export default {
 
         pagar(){
        //  this.pago.total =  $route.params.totalVar; 
-         this.pago.usuario_id = sessionStorage.getItem('usuario_email');
-         console.log('usuario');
          console.log(this.pago.usuario_id);
          console.log('total');
          console.log(this.pago.total)

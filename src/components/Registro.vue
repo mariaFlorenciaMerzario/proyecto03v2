@@ -1,20 +1,12 @@
 <template>
 <v-card class="w-50 m-auto my-4">
 
-  <div v-if="this.camposVacios === true" class="rosaAlert p-3">
+  <p v-if="this.camposVacios === true" class="rosaAlert p-3 text-white">
       Debés completar todos los campos
-  </div>
+  </p>
   
-
-    <div v-if="this.loginVar === false" class="rosaAlert p-3">
-      Las credenciales no son correctas, volvé a intentarlo      
-  </div>
-
-   <div v-if="this.regVar === true" class="bg-warning text-white p-3">
-       <p>Bienvenido</p>
-  </div>
-  
-  <div v-else>
+  <p v-if="usuarioExiste" class="rosaAlert p-3">Ya existe un usuario registrado con ese Email</p>
+  <div>
         <v-form
             ref="form"
             v-model="valid"
@@ -45,35 +37,29 @@
             >
          </v-text-field>
 
-        <v-btn
-            color="green darken-1"
-            text
-            class="bg-primary m-3 text-white"
-            @click="obtenerUsers"
-        >
-            Login
-        </v-btn>
-
-          <v-btn 
-            @click="reset"   
-          >
-            Reseteo
-        </v-btn>
-
-        <!-- <v-btn
-            color="green darken-1"
-            text
-            @click="crearUsers"
-            class="bg-warning m-3"
-        >
-            Registro
-        </v-btn>     -->
-          <div class="text-primary pt-3 d-block ">
-              <button @click="registro"> 
-                 Hacé click acá si no estás registrado
-              </button>   
-          </div>
-
+        <v-text-field
+            v-model="usuarioLogin.passwordTwo"
+            :counter="10"
+            :rules="nameRules"
+            label="Confirmar Password"
+            required
+            >
+        </v-text-field>
+        <p v-if="usuarioLogin.password != usuarioLogin.passwordTwo" class="rosaAlert p-2">
+                Las password deben coincidir
+            </p>
+        
+        
+        <div v-if="usuarioLogin.password == usuarioLogin.passwordTwo">    
+            <v-btn
+                color="green darken-1"
+                text
+                class="bg-primary m-3 text-white"
+                @click="crearUsers"
+            >
+                Registro
+            </v-btn>
+        </div>
     </v-form>
   </div>
 </v-card>
@@ -87,34 +73,24 @@ import {mapState, mapMutations, mapActions} from 'vuex'
     components: { 
          },  
          
-    name: 'Login',
+    name: 'Registro',
 
     computed:{
       ...mapState([
           'usuarios',
-          'loginVar',        
           'usuarioLogin',  
           'regVar',
-          'camposVacios'
+          'camposVacios',
+          'usuarioExiste',  
       ]),
     },
 
     data: () => ({
-      valid: true,
-      dialog:false,
-      //regVar:'',
-      //loginVar:'',
-    /*  usuario:{
-              nombre:'',
-              email:'',
-              password:''
-          },
-      */
-   //     camposVacios: false,
+        valid: true,
+        dialog:false,
         respuesta:'',
         status:false,
         usuariosPosts:[],
-        logVar:'',
       /*nombre:'',
       email:'',
       password:'', */ 
@@ -128,13 +104,11 @@ import {mapState, mapMutations, mapActions} from 'vuex'
       ],
      
     }),
-
      methods:{
             ...mapMutations([
            
             ]),
             ...mapActions([
-                'obtenerUsers',
                 'crearUsers'
             ]),
 /*

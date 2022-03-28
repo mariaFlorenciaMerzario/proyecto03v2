@@ -12,7 +12,7 @@ class Producto
    
     function productosTodos($db)
     {
-        $query = "SELECT * FROM productos";
+        $query = "SELECT * FROM productos order by nombre";
 
         $res = mysqli_query($db, $query);
 

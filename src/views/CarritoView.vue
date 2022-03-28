@@ -6,7 +6,7 @@
         </div>
 
         <div v-if="this.banderita == false">
-             <div class="h3 m-5"> Tu carrito de compras aún está vacío </div> 
+             <div class="h3 m-5 rosaAlert"> Tu carrito de compras aún está vacío </div> 
         </div>
     </div>
 </template>

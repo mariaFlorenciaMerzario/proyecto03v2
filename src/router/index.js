@@ -3,13 +3,19 @@ import VueRouter from 'vue-router'
 import Home from '../views/HomeView.vue'
 
 Vue.use(VueRouter)
-
-const routes = [
+ 
+ const routes = [
 
   {
     path: '/',
     name: 'Home',
     component: Home
+  },
+
+  {
+    path: '/Registro',
+    name: 'Registro',
+    component: () => import(/* webpackChunkName: "login" */ '../views/RegistroView.vue')
   },
   
   {
@@ -17,6 +23,7 @@ const routes = [
     name: 'Login',
     component: () => import(/* webpackChunkName: "login" */ '../views/LoginView.vue')
   },
+
 
   {
     path: '/tarjeta/:totalVar',
@@ -28,7 +35,8 @@ const routes = [
     path: '/carrito',
     name: 'Carrito',
     component: () => import(/* webpackChunkName: "carrito" */ '../views/CarritoView.vue')
-  },  
+  }, 
+
 ]
 
 const router = new VueRouter({

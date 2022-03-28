@@ -1,6 +1,6 @@
 <template>
 <div>
-  <v-row justify="center">
+  <v-row class="m-0 justify-content-center">
     <v-dialog
       v-model="dialog"
       persistent
@@ -11,55 +11,56 @@
         <v-list-item link
           v-bind="attrs"
           v-on="on"
+           
         >
-            <v-list-item-title>Comprar</v-list-item-title>
+            <v-list-item-title>Ver Más</v-list-item-title>
            </v-list-item>
       </template>
- 
+
       <v-card>
-           <v-card-title class="text-h5">
-          {{nombre}}
-          </v-card-title>
-      
-           <v-card-text>
-              {{descripcion}}
-           </v-card-text>
+           <v-card-title class="text-h5 text-secondary">
+            {{nombre}}
+            </v-card-title>
+        
+            <v-card-text class="text-secondary">
+                {{descripcion}}
+            </v-card-text>
 
-            <v-card-text>
-              ${{precio}}-
-           </v-card-text>
+              <v-card-text class="text-secondary">
+                Precio Unitario: ${{precio}}-
+            </v-card-text>
 
-          <!-- inicia el select -->
+            <!-- inicia el select -->
 
-          <label>Cantidad</label>
-          <v-select 
-              v-model="cantidad" 
-              :items="cantidadNumeros" 
-              item-text="cantidad"
-              class="w-25 m-auto"
-          ></v-select>
+            <label>Cantidad</label>
+            <v-select 
+                v-model="cantidad" 
+                :items="cantidadNumeros" 
+                item-text="cantidad"
+                class="w-25 m-auto"
+            ></v-select>
 
-           <!-- termina el select -->
-            <v-card-text>
-              Total: ${{precio * this.cantidad}}-
-           </v-card-text>
-           <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            color="green darken-1"
-            text
-            @click="agregarAlCarrito">
-            Agregar
-           <!-- enviar info a carrito -->
-            <!-- <Carrito /> -->
-          </v-btn>
-          <v-btn
-            color="green darken-1"
-            text
-            @click="dialog = false">
-            Cancelar
-          </v-btn>
-        </v-card-actions>
+            <!-- termina el select -->
+              <v-card-text>
+                Importe Total: $ {{precio * this.cantidad}} .-
+            </v-card-text>
+            <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn
+              color="green darken-1"
+              text
+              @click="agregarAlCarrito">
+              Agregar
+            <!-- enviar info a carrito -->
+              <!-- <Carrito /> -->
+            </v-btn>
+            <v-btn
+              color="green darken-1"
+              text
+              @click="dialog = false">
+              Cancelar
+            </v-btn>
+          </v-card-actions>
       </v-card>
     </v-dialog>
     </v-row>
@@ -104,6 +105,7 @@
           cantidad_storage: '',
           imagen_storage: '',
           carritoLleno: false,
+          nombreRepetido: false,
  
         }
     },
@@ -118,31 +120,37 @@
  
   methods:{ 
           agregarAlCarrito: function(){
-          
           this.dialog = false;
+          let cant = this.arrayLocalStorage.length;
           
-          this.arrayLocalStorage.push(
-          {
-            nombre_storage:this.nombre,
-            descripcion_storage:this.descripcion,
-            precio_storage:this.precio,
-            cantidad_storage:this.cantidad,
-            imagen_storage:this.imagen
-        }
-        );
-                              //nombre en el localStorage
-          localStorage.setItem("arrayLocalStorage", JSON.stringify(this.arrayLocalStorage))
-          this.nombre_storage = ""
-          this.descripcion_storage = ""
-          this.precio_storage = ""
-          this.cantidad_storage = ""
-          this.imagen_storage = ""
-         
-        }
-
-          
-          
-     },
+          if(cant >0){
+            for (let i = 0; i < this.arrayLocalStorage.length; i++) {
+              if(this.arrayLocalStorage[i].nombre_storage == this.nombre){
+                  this.arrayLocalStorage[i].cantidad_storage = this.arrayLocalStorage[i].cantidad_storage
+                  + this.cantidad
+                  this.nombreRepetido = true;
+                  }//cierra el if
+                } //cierra el for
+          } //end if
+          if(this.nombreRepetido == false){
+            this.arrayLocalStorage.push(
+            {
+              nombre_storage:this.nombre,
+              descripcion_storage:this.descripcion,
+              precio_storage:this.precio,
+              cantidad_storage:this.cantidad,
+              imagen_storage:this.imagen
+            })
+          }
+                                //nombre en el localStorage
+            localStorage.setItem("arrayLocalStorage", JSON.stringify(this.arrayLocalStorage))
+            this.nombre_storage = ""
+            this.descripcion_storage = ""
+            this.precio_storage = ""
+            this.cantidad_storage = ""
+            this.imagen_storage = ""
+            }
+          }
      
  }
 </script>

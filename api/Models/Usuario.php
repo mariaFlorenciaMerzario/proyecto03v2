@@ -9,26 +9,37 @@ class Usuario
    
     function usuariosCrear($data)
     {
+        $json = file_get_contents('php://input');
+        $postData = json_decode($json, true);
+
         $db = mysqli_connect('localhost', 'root', '', 'coder');
         mysqli_set_charset($db, 'utf8mb4');
         
-        $nombre = mysqli_real_escape_string($db, $data['nombre']);
-        $email = mysqli_real_escape_string($db, $data['email']);
-        $password = mysqli_real_escape_string($db, $data['password']);
-       
-        // Armamos el query.
-        $query = "INSERT INTO usuarios (email, password, nombre)
-                VALUES ('$email', '$password', '$nombre')";
-        $exito = mysqli_query($db, $query);
+        $email = isset($postData['email']) ? $email = $postData['email'] : 0;
 
         
-        return $exito;
+        $query = "SELECT * FROM usuarios
+        WHERE email = '$email'";
+            $res = mysqli_query($db, $query); 
+            
+            if(mysqli_num_rows($res) == 0){
+                
+                $nombre = mysqli_real_escape_string($db, $data['nombre']);
+                $email = mysqli_real_escape_string($db, $data['email']);
+                $password = mysqli_real_escape_string($db, $data['password']);
+            
+                // Armamos el query.
+                $query = "INSERT INTO usuarios (email, password, nombre)
+                        VALUES ('$email', '$password', '$nombre')";
+                $exito = mysqli_query($db, $query);
+            
+                return $exito;
+            }else{
+                return false;
+            }
+            var_dump(mysqli_num_rows($res));
     }
 
-    
-
-    
-   
     /**
      * @param mixed $nombre
      */

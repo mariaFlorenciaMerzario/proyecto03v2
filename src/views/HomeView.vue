@@ -2,18 +2,18 @@
 <div>
 
   <v-container>
-     <div>
+     <div>   
       <v-row  
-        n o-gutters
+        no-gutters
         style="height: 150px;"
-        class="d-flex text-center"
+        class="d-flex text-center justify-content-center"
       >
-       <v-col class="m-2" cols="3" sm="3" md="3" 
-           v-for="(producto, i) in arrayProductos" :key="i"
+       <v-col cols="6" sm="1" md="3" 
+           v-for="(producto, i) in productos" :key="i"
          >
             <v-card
                   :loading="loading"
-                   max-width="374"
+                   max-width="300"
                    class="p-4 text-center d-flex justify-content-center flex-column align-items-center"
                 >
                   <template slot="progress">
@@ -26,12 +26,12 @@
 
                   <v-img
                     height="250"
-                    src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
+                    :src='producto.imagen'
                     v-model="imagenPadre"
                   ></v-img>
 
                   <v-card-title>
-                     <input type="text" :id="nombrePadre" :nombrePadre='producto.nombre'
+                     <input type="text" class="text-center" :id="nombrePadre" :nombrePadre='producto.nombre'
                       :value='producto.nombre' />
                   </v-card-title>
 
@@ -42,29 +42,31 @@
                     >   
                     </v-row>
 
-                    <v-card-text>
-                       <input type="text" id="descripcionPadre" :descripcionPadre="producto.descripcion"
-                      :value='producto.descripcion'/>
+                    <!-- <v-card-text>
+                       <textarea type="text" id="descripcionPadre" :descripcionPadre="producto.descripcion"
+                        :value='producto.descripcion' class="bg-light p-3">
+                      </textarea>
              
-                    </v-card-text>
+                    </v-card-text> -->
                    $ <input type="text" class="text-center" id="precioPadre" :precioPadre="producto.precio"
                       :value='producto.precio'/>
-                  </v-card-text>
+                    </v-card-text>
    <!-- aca empieza la modal -->
        <template>
             <div data-app class="m-2">
-             <v-row justify="center">
+             <v-row>
               <v-dialog
                 v-model="dialog"
                 persistent
                 max-width="290"
               >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn
+                <template v-slot:activator="{ on, attrs }" >
+                  <v-btn 
                     color="primary"
                     dark
                     v-bind="attrs"
                     v-on="on"
+                     
                   >
                     <ModalComprar
                         :nombre='producto.nombre'
@@ -72,7 +74,7 @@
                         :precio='producto.precio'
                         :imagen='producto.imagen'
                         :dialog='false'   
-                        :array='arrayProductos'
+                        :array='productos'
                         :carritoVacio='0'
                         >
                     </ModalComprar>
@@ -84,9 +86,7 @@
           </template>
    <!-- aca termina la modal -->
             </v-card>
-
         </v-col>
-
       </v-row>
      </div>
   </v-container>
@@ -95,6 +95,8 @@
 
 <script>
 
+
+import {mapState, mapMutations, mapActions} from 'vuex'
 import ModalComprar from '../components/ModalComprar.vue'
 //import Carrito from '../components/Carrito.vue'
 
@@ -103,6 +105,14 @@ export default {
     components:{
         ModalComprar,
      //   Carrito
+    },
+
+      computed:{
+      ...mapState([
+          'productos',
+          'productoInicial',
+         
+      ]),
     },
 
     data: () => ({
@@ -119,13 +129,13 @@ export default {
            
               arrayProductos:[
               { 
-                  producto_id:'',
-                  nombre: '',
-                  precio: '',
-                  descripcion: '',
-                  categoria: '',
-                  imagen:''
-                },
+                producto_id:'',
+                nombre: '',
+                precio: '',
+                descripcion: '',
+                categoria: '',
+                imagen:''
+              },
              ],
               arrayProductosDeStorage:[
                 {
@@ -145,10 +155,20 @@ export default {
              ],
     }),
 
+    mounted(){
+        
+        let data = localStorage.getItem("arrayLocalStorage");
+        if(data != null){
+          this.arrayProductosDeStorage = JSON.parse(data);
+          this.banderita = true;
+        }
+        this.cargarProductos();
+     },
+
     //se ejecuta al insertar el DOM o cuando el
     //componente o la vista se muestra en la pagina
      created(){
-      console.log('created en home')
+      /*console.log('created en home')
       let productoVar = {
           
               method: 'GET',
@@ -158,7 +178,7 @@ export default {
                   'Content-Type': 'application/json',
               },
           }
-      fetch('http://localhost:81/coder/02proyecto/api/productos.php',
+      fetch('http://localhost:81/coder/03proyecto/api/productos.php',
       productoVar)
 
         .then(response => response.json())
@@ -168,36 +188,36 @@ export default {
              console.log(this.arrayProductos)
              return this.arrayProductos
      }, 
-     
-     mounted(){
-        let data = localStorage.getItem("arrayLocalStorage");
-        if(data != null){
-          this.arrayProductosDeStorage = JSON.parse(data);
-          this.banderita = true;
-        }
+     */
      },
-
+     
+ 
       beforeUpdate(){
          
       },
 
       beforeMounted(){
         let data = localStorage.getItem("arrayLocalStorage");
-            if(data != null)
-            {
-                this.arrayProductosDeStorage = JSON.parse(data);  
-            }
+          if(data != null)
+          {
+              this.arrayProductosDeStorage = JSON.parse(data);  
+          }
       },
 
-    methods:{ 
-      mostrarModal: function(){
-          return document.getElementById('UserCreate').modal('show');
-      },
-      
-      alertCarro: function(){
-        alert('alert carro en home')
-      }
-    },
-  
+      methods:{
+          ...mapMutations([
+          ]),
+          ...mapActions([
+              'cargarProductos'
+
+          ]),
+          mostrarModal: function(){
+              return document.getElementById('UserCreate').modal('show');
+          },
+          
+          alertCarro: function(){
+            alert('alert carro en home')
+          }
+        },
   }
 </script>
