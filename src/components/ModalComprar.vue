@@ -1,17 +1,15 @@
 <template>
 <div>
-  <v-row class="m-0 justify-content-center">
+  <v-row class="m-0 justify-content-center bg-transparente">
     <v-dialog
       v-model="dialog"
       persistent
       max-width="450"
     >
       <template v-slot:activator="{ on, attrs }">
-
         <v-list-item link
           v-bind="attrs"
-          v-on="on"
-           
+          v-on="on"         
         >
             <v-list-item-title>Ver Más</v-list-item-title>
            </v-list-item>
@@ -81,13 +79,17 @@
 <script>
 
 //import Split from './Split.vue'
+import {mapState} from 'vuex'
 
  export default {
       name: 'ModalComprar',
-      Components:{
-     
-      
+      Components:{   
       },
+       computed:{
+      ...mapState([
+          'banderita'
+      ]),
+    },
    props: ['nombre','descripcion','precio','imagen','array','carritoVacio'],
 
       data () {
@@ -113,46 +115,89 @@
         //busca la informacion en localStorage
         let data = localStorage.getItem("arrayLocalStorage");
         if(data != null){
+         // alert('AcA carga el home')
           this.arrayLocalStorage = JSON.parse(data);
           this.carritoLleno = true 
         }
      },
  
   methods:{ 
-          agregarAlCarrito: function(){
-          this.dialog = false;
-          let cant = this.arrayLocalStorage.length;
-          
-          if(cant >0){
-            for (let i = 0; i < this.arrayLocalStorage.length; i++) {
-              if(this.arrayLocalStorage[i].nombre_storage == this.nombre){
-                  this.arrayLocalStorage[i].cantidad_storage = this.arrayLocalStorage[i].cantidad_storage
-                  + this.cantidad
-                  this.nombreRepetido = true;
-                  }//cierra el if
-                } //cierra el for
-          } //end if
-          if(this.nombreRepetido == false){
-            this.arrayLocalStorage.push(
-            {
-              nombre_storage:this.nombre,
-              descripcion_storage:this.descripcion,
-              precio_storage:this.precio,
-              cantidad_storage:this.cantidad,
-              imagen_storage:this.imagen
-            })
-          }
-                                //nombre en el localStorage
-            localStorage.setItem("arrayLocalStorage", JSON.stringify(this.arrayLocalStorage))
-            this.nombre_storage = ""
-            this.descripcion_storage = ""
-            this.precio_storage = ""
-            this.cantidad_storage = ""
-            this.imagen_storage = ""
+         agregarAlCarrito: function(){
+            this.dialog = false;
+            let data = localStorage.getItem("arrayLocalStorage"); 
+            this.arrayLocalStorage = JSON.parse(data); 
+
+            if(this.arrayLocalStorage === null || this.arrayLocalStorage.length === 0){
+              this.arrayLocalStorage=[];
+              alert('soy null')
+              alert(this.arrayLocalStorage)
+
+                this.arrayLocalStorage.push(
+                      {
+                        'nombre_storage': this.nombre,
+                        'descripcion_storage': this.descripcion,
+                        'precio_storage': this.precio,
+                        'cantidad_storage': this.cantidad,
+                        'imagen_storage': this.imagen
+                    });
+                        this.nombre_storage = ""
+                        this.descripcion_storage = ""
+                        this.precio_storage = ""
+                        this.cantidad_storage = ""
+                        this.imagen_storage = ""
+                        this.nombreRepetido = true,
+                        localStorage.setItem("arrayLocalStorage", JSON.stringify(this.arrayLocalStorage))
             }
-          }
-     
- }
+           alert(this.arrayLocalStorage.length)
+            if(this.arrayLocalStorage != null ||  this.arrayLocalStorage.length != 0 || this.arrayLocalStorage.length != 0){
+              this.arrayLocalStorage = JSON.parse(data);
+               for (let i = 0; i < this.arrayLocalStorage.length; i++) {
+               
+                if(this.nombre == this.arrayLocalStorage[i].nombre_storage){
+                    this.arrayLocalStorage[i].cantidad_storage =
+                    this.arrayLocalStorage[i].cantidad_storage
+                    +this.cantidad;
+                  
+                   // const itemAModificar = data.find(item=>item.nombre_storage === this.arrayLocalStorage[i].nombre_storage)
+                  //  itemAModificar.cantidad_storage = this.cantidad_storage
+
+                    localStorage.setItem("arrayLocalStorage", JSON.stringify(this.arrayLocalStorage))
+
+                      this.nombre_storage = ""
+                      this.descripcion_storage = ""
+                      this.precio_storage = ""
+                      this.cantidad_storage = ""
+                      this.imagen_storage = ""
+
+                      this.$store.commit('banderita', true)
+                      this.nombreRepetido = true;
+                      alert('repetido!!!')
+                      break
+                    }//cierra el if
+                   } //cierra el for
+                  
+              if(this.nombreRepetido === false){
+                alert('nombreRepetido = false')
+                this.arrayLocalStorage.push(
+                {
+                  'nombre_storage': this.nombre,
+                  'descripcion_storage': this.descripcion,
+                  'precio_storage': this.precio,
+                  'cantidad_storage': this.cantidad,
+                  'imagen_storage': this.imagen
+              });
+                  this.nombre_storage = ""
+                  this.descripcion_storage = ""
+                  this.precio_storage = ""
+                  this.cantidad_storage = ""
+                  this.imagen_storage = ""
+
+                  localStorage.setItem("arrayLocalStorage", JSON.stringify(this.arrayLocalStorage))
+              }
+            }   
+         },
+    }
+  }
 </script>
 
 

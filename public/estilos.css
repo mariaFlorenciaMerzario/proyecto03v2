@@ -12,4 +12,22 @@
     background-color: #9fd7a9;
 }
 
+.border_gray{
+    border: none;
+    border-collapse: inherit;
+    border: 1px solid gray;
+}
+
+.bg-transparente{
+    background-color: transparent!important;
+}
+
+.font-08{
+    font-size: 0.8rem;
+}
+
+.font-09{
+    font-size: 0.9rem;
+}
+
 

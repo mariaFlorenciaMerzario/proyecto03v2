@@ -218,6 +218,8 @@ import {mapState, mapMutations, mapActions} from 'vuex'
           return this.registroVar = true;
         },
         registro() {
+            this.$store.commit('cambiarLoginVar', false) 
+            this.$store.commit('usuarioExiste', false)    
             this.$router.push('Registro')
           },
       

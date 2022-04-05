@@ -17,7 +17,7 @@
             v-model="usuarioLogin.nombre"
             :counter="10"
             :rules="nameRules"
-            label="Name"
+            label="Nombre"
             required
             ></v-text-field>
 

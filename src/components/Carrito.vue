@@ -1,70 +1,55 @@
+
 <template>
-  <div class="ma-12 pa-12 d-flex">
-    <v-card class="m-auto my-4 p-2">
-  
-    <template>
-        <table class="table">
-            <thead>
-                <td class="p-2">Producto</td>
-                <td class="p-2">Precio</td>
-                <td class="p-2">Cant</td>
-                <td class="p-2">Subtotal</td>
-            </thead>
-            <tbody>
-                <tr v-for="(producto,i) in this.arrayProductosDeStorage" :key="i" >
-                    <td class="text-start p-3">{{ producto.nombre_storage }}</td>
-                    <td class="text-start p-3">${{ producto.precio_storage }}</td>
-                    <td class="text-start p-3">{{ producto.cantidad_storage}}</td>
-                    <td class="text-start p-3">${{producto.precio_storage * producto.cantidad_storage}}</td>
-                    
-                    <td> 
-                      <!-- se abre la modal -->
-                      <!-- <div data-app>
-                          <Modal
-                              :producto="producto.nombre_storage" 
-                              :data-toggle="modal"  />
-                      </div> -->
+<div>
+  <div v-if="this.carritoProcesado == false" class="row">
+  <table class="table table-striped border_gray border-rounded w-75 m-auto my-2">
+  <tr class="border_gray">
+      <td class="text-secondary font-09">Nombre</td>
+      <td class="text-secondary font-09">Precio</td>
+      <td class="text-secondary font-09">Cant</td>
+      <td class="text-secondary font-09">Subtotal</td>
+      <td class="text-secondary font-09">Eliminar</td>
 
-                    </td>
-                </tr>
-                <tr class="p-2 d-flex justify-content-end">
-                  <td>Total: ${{total()}}.-</td>
-                </tr>
-            </tbody>
-           
-        </table>
-        <div v-if="this.carritoLleno == true">
-          <router-link 
-              :to="{ name:'Home'}">
-          </router-link>
-       </div>
-      </template>
+  </tr>
+   <tr v-for="(item, i) in this.arrayProductosDeStorage" :key="i">
+    
+        <td class="text-secondary font-08 col-3">{{item.nombre_storage}}</td>
+        <td class="text-secondary font-08 col-2">$ {{item.precio_storage}}</td>
+        <td class="w-25 text-center w-25 col-3">
+          <input :id="item.nombre_storage" v-on:change="modificarCant(item)" 
+          class="font_08 w-50 text-center font-08 text-danger " 
+          :value="item.cantidad_storage"
+            type="text">
+        </td>
+        <!-- subtotal --> 
+         <td class="w-25 text-center text-secondary font-08 col-2" :id="'subtotal'+item.nombre_storage" >$ {{item.precio_storage * item.cantidad_storage}}</td>
+         <td>
+            <div data-app>
+                <Modal
+                    :producto="item.nombre_storage" 
+                    :data-toggle="modal"
+                />
+            </div>
+        </td>
+  </tr>
+</table>
+      <div v-if="this.loginVar == true">
+        <button type="button" @click="grabarCarro()" class="btn btn-primary">Confirmar</button>
+      </div>
+      <div v-if="this.loginVar == false">
+        <div class="rosaAlert p-2 w-50 m-auto">Tenés que loguearte para confirmar tu carrito</div>
+      </div>
+  </div>
 
-    <div v-if="this.logueado == 'true'">
-      <div class="bg-success p-1"> 
-        <router-link 
-            :to="{ name: 'Tarjeta', params: {totalVar: total()}}">
-            <button class="text-white">
-              Pagar
-            </button>
-        </router-link>
+      <div v-if="this.carritoProcesado == true">
+        <div class="bg-success p-2 w-50 m-auto">El carrito fué procesado con Exito solo resta realizar el pago</div>
       </div>
-    </div>
-               
-    <div v-if="this.logueado == 'false'">
-      <div class="bg-warning p-2">
-        <button @click="login"> Link aquí para registro y pagar</button>
-          <router-link
-            :to="{ name: 'Login'}">
-          </router-link>
-      </div>
-    </div>
-   </v-card>
- </div>
+</div>
+
 </template>
-
 <script>
 
+import {mapState} from 'vuex'
 import Modal from '../components/Modal.vue';
 
   export default {
@@ -76,7 +61,34 @@ import Modal from '../components/Modal.vue';
              dialog:true,
              logueado:'',
              modal:'modal',
-        }),
+             cantidad_modificada:0,
+             cont: 0,
+             carritoProcesado:false,
+            
+             headers:[
+               {text: 'Producto', value:'nombre_storage'},
+               {text: 'Precio', value:'precio_storage'},
+               {text: 'Cantidad', value:'cantidad_storage'},
+               {text: 'Subtotal', value:''},
+               {text: 'Eliminar', value:''},
+             ],
+       }),  
+
+        computed:{
+        ...mapState([
+            'banderita',
+            'loginVar',
+
+          ]),  
+
+           subtotal(){
+              let subtotal = this.arrayProductosDeStorage.precio_storage *
+              this.arrayProductosDeStorage.cantidad_storage
+              return{
+                subtotal
+              }
+           },
+      }, 
         components:{
           Modal
         },
@@ -85,21 +97,27 @@ import Modal from '../components/Modal.vue';
     created()
         {
             let data = localStorage.getItem("arrayLocalStorage");
-            if(data != null)
+            if(data.length > 0)
             {
                 this.arrayProductosDeStorage = JSON.parse(data);
                 this.carritoLleno = true;
-                console.log('created en carro')
-            }   
+                this.$store.commit('banderita', true)
+            }else{
+
+               this.$store.commit('banderita', false)
+              // alert('false, estoy en carrito.vue false de data.length')
+            } 
             let usuario_session = sessionStorage.getItem('usuario_email');
          
             if(usuario_session == '' || usuario_session == null){
-              this.logueado = 'false' 
-                
+                this.$store.commit('loginVar', false)    
+  
             }else{
-              this.logueado = 'true'
+               this.$store.commit('loginVar', true)    
+
                 
             }
+          //  alert('123')
         },
      //se ejecuta al insertar el DOM o cuando el
     //componente o la vista se muestra en la pagina
@@ -112,9 +130,11 @@ import Modal from '../components/Modal.vue';
             let data = localStorage.getItem("arrayLocalStorage");
             if(data != null)
             {
+            //  alert('hola aca no entra')
               this.arrayProductosDeStorage = JSON.parse(data);
-            }             
-     },
+              this.$store.commit('banderita', true)
+           }             
+      },
 
      methods:{
         total: function(){  
@@ -122,65 +142,131 @@ import Modal from '../components/Modal.vue';
           let array=[];
           let i=0;
           let data = localStorage.getItem("arrayLocalStorage");
+        //  alert('aca estoy en methods carrito1')
             if(data != null)
+          //  alert('aca estoy en methods carrito2')
             {
               array = JSON.parse(data);
-             
                 for (i=0; i < array.length; i++) {
                   totalVar = array[i].precio_storage * array[i].cantidad_storage + totalVar;   
               }
                   return totalVar
           }
         },
-
-          delete: function(){
-               this.arrayProductosDeStorage.forEach((element, index) => {
-                if (element.email === this.producto.email_storage) {
-                      
-                      this.arrayProductosDeStorage.splice(index,1)
-                }
-  })
+          asignarCant(item){
+                console.log(item)
           },
+      
           carrito() {
               this.$router.push('Carrito')
           },
 
           login() {
-            this.$router.push('Login')
+              this.$router.push('Login')
           },
 
-        pagar: function(){
+           modificarCant(item) {
+           
+            let datoDiv = 'subtotal'+item.nombre_storage
+
+             //this.cantidad_modificada = item.cantidad_storage
+            //alert(this.$refs.this.datoDiv); 
+            
+            //document.getElementById(datoDiv).innerHTML = item.cantidad_storage
+            let cant_modificada = document.getElementById(item.nombre_storage).value
+            let subTotal = cant_modificada * item.precio_storage
+            document.getElementById(datoDiv).innerHTML = '$ '+subTotal
+          
+             //grabo el cambio en localstorage
+            let data = localStorage.getItem("arrayLocalStorage");
+            this.arrayLocalStorage = JSON.parse(data);
+              for (let i = 0; i < this.arrayLocalStorage.length; i++) {
+                if(this.arrayLocalStorage[i].nombre_storage == item.nombre_storage){
+                   this.arrayLocalStorage[i].cantidad_storage = cant_modificada
+                  localStorage.setItem("arrayLocalStorage", JSON.stringify(this.arrayLocalStorage))                    
+                    }//cierra el if
+                  } //cierra el for
+
+          },
+
+
+        edit(){
+          this.dialog = false;
+          let data = localStorage.getItem("arrayLocalStorage");
+          this.arrayLocalStorage = JSON.parse(data);
+
+              for (let i = 0; i < this.arrayLocalStorage.length; i++) {
+                if(this.arrayLocalStorage[i].nombre_storage == this.nombre){
+                    this.arrayLocalStorage[i].cantidad_storage = this.cantidadModificada
+                    + this.arrayProductosDeStorage[i].cantidad_storage
+                  alert('Cantidad modificada')
+                    
+                    }//cierra el if
+                  } //cierra el for
+           
+                //nombre en el localStorage
+              localStorage.setItem("arrayLocalStorage", JSON.stringify(this.arrayLocalStorage))
+              this.nombre_storage = ""
+              this.descripcion_storage = ""
+              this.precio_storage = ""
+              this.cantidad_storage = ""
+              this.imagen_storage = ""     
+        },
+          //fin metodo edit
+
+        grabarCarro: function(){
           this.dialog = false;
           let usuario_session = sessionStorage.getItem('usuario_email');
-         
-            if(usuario_session == '' || usuario_session == null){
-              this.logueado = 'false' ;
 
-           
+            if(usuario_session == '' || usuario_session == null){
+                this.$store.commit('loginVar', false)    
+
             }else{
-              
-              this.logueado = 'true';    
-              let totalVr=0;
-              let array=[];
-              let i=0;
+             
+              this.$store.commit('loginVar', true)    
+              let arrayCarrito=[]
               let data = localStorage.getItem("arrayLocalStorage");
-                if(data != null)
+              arrayCarrito = JSON.parse(data);
+                if(arrayCarrito.length != null)
                 {
-                  array = JSON.parse(data);
-                    for (i=0; i < array.length; i++) {
-                      totalVr = array[i].precio_storage * array[i].cantidad_storage + totalVr;        
-                     }
+                  arrayCarrito[0].email=usuario_session;
+                  let carritoVar = {
+                    method: 'POST',
+                    body: JSON.stringify(arrayCarrito),
+                    headers: {
+                        'Content-Type': 'application/json'
+                          },
+                    }
+                    fetch('http://localhost:81/coder/proyecto03v2/api/carritos.php',carritoVar)
+                      .then(response => response.json())
+                      .then(respons => {   
+                        if(respons.success === true){ 
+                          alert('true')    
+                          window.localStorage.removeItem('arrayLocalStorage')
+                            this.carritoProcesado = true;
+
+                        //    this.$router.go('/carrito')  
+                          }else{ 
+                            this.carritoProcesado = false; 
+                        }             
+                    })
+                }
+               }
+            } 
+        }      
+                  //calculo el subtotal de cada linea 
+                
+                 //   for (i=0; i < array.length; i++) {
+                  //    subtotal = array[i].precio_storage * array[i].cantidad_storage + subtotal;        
+                    
                        
                  /*    this.$router.push({
                         name: 'Tarjeta',
-                        params: { pathMatch: totalVr },
+                        params: { pathMatch: subtotal },
                       })
                  */
-                   this.$router.push({ name: 'Tarjeta', params: { totalVar: totalVr} })
-                }
-          }
-        }
-     }
+                  // this.$router.push({ name: 'Carrito', params: { totalVar: subtotal} })
+          
   
   }
 </script>

@@ -11,6 +11,7 @@ export default new Vuex.Store({
     productos:[],
     pagos:[],
     emailVar:'',
+    logueado:'',
     usuarioLogin:
           {
               nombre:'',
@@ -39,12 +40,11 @@ export default new Vuex.Store({
     regVar:'',
     camposVacios:'',
     usuarioExiste:'',
-    sessionStorageUsuario:'',
+    sessionStorageUsuario: false,
+    banderita:false,
   },
   
-
-    mounted(){
-      
+    mounted(){ 
     },
 
   mutations: {
@@ -94,11 +94,19 @@ export default new Vuex.Store({
     },
 
     sessionStorageUsuario(state, valueSession){
-      let data = localStorage.getItem("arrayLocalStorage");
-      if(data != null){
-        state.sessionStorageUsuario = valueSession
-      }
-    }
+      state.sessionStorageUsuario = valueSession
+    },
+
+    sessionEmailVar(state, valueEmail){
+      state.emailVar = valueEmail
+    },
+
+    //se utiliza para identificar si el carrito esta lleno o no
+    banderita(state, banderitaValue){
+      state.banderita = banderitaValue
+    },
+
+   
   },
   actions: {
     //llamo a la API
@@ -127,8 +135,12 @@ export default new Vuex.Store({
           if(usuarios.success == true){
            // router.go({name:'Login'})
            
+          
+
             sessionStorage.setItem("usuario_email", this.state.usuarioLogin.email)  
-              this.emailVar = sessionStorage.getItem("usuario_email");
+            
+              commit('sessionEmailVar',sessionStorage.getItem("usuario_email"))
+             
               commit('cambiarLoginVar', true)
               commit('cambiarRegVar', true)
               commit('cambiarCampos', false)
@@ -184,6 +196,7 @@ export default new Vuex.Store({
               commit('cambiarCampos', false)
               commit('cambiarRegVar', false)
               commit('loginVar', false)
+              commit('sessionStorageUsuario', false)
 
             }
            

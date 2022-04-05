@@ -1,15 +1,24 @@
 <template>
     <div>
         <v-toolbar xxs>
-            <v-app-bar-nav-icon @click="drawer=!drawer"></v-app-bar-nav-icon>
-            <v-toolbar-title>Mi App</v-toolbar-title>
+       
+            <v-toolbar-title>
+              <v-img
+                    :src="require('../assets/logo.png')"
+                    contain
+                    width="60"
+                />
+              </v-toolbar-title>
+                   <v-app-bar-nav-icon @click="drawer=!drawer"></v-app-bar-nav-icon>
             <v-spacer></v-spacer>
 
-            <div v-if="sessionStorageUsuario">
-                <v-btn class="btn btn-link nav-link padding-8" @click="logout">Cerrar Sesión</v-btn>
+            <div v-if="sessionStorageUsuario == true">
+                <v-btn class="btn btn-link nav-link padding-8" @click="logout">{{this.emailVar}}
+                       Cerrar Sesión</v-btn>
             </div>
-            <div v-else>
-                <v-btn class="btn btn-link nav-link padding-8 w-50 m-3" @click="irLogin">Login</v-btn>
+            <div v-if="sessionStorageUsuario == false">
+                <v-btn class="btn btn-link nav-link padding-8 w-50 m-3" 
+                @click="irLogin">Login</v-btn>
             </div>
 
         </v-toolbar>
@@ -17,27 +26,12 @@
         <v-navigation-drawer xxs v-model="drawer" temporary>
               <div>
                 <v-btn class="btn btn-link nav-link padding-8 w-50 m-3" @click="irHome">Home</v-btn>
-                <!-- <router-link to="/" class="p-3">Home</router-link> -->
             </div>
 
             <div>
                 <v-btn class="btn btn-link nav-link padding-8 w-50 m-3" @click="irCarrito">Carrito</v-btn>
-                <!-- <router-link to="/carrito"></router-link> -->
             </div>
-
         </v-navigation-drawer>
-     
-      <!-- <router-link to="/">Home</router-link>
-        <div v-if="sessionStorageUsuario">
-        <button class="btn btn-link nav-link padding-8" @click="logout">Cerrar Sesión</button>
-         <router-link to="/login">Logout</router-link> |  -->
-        <!-- </div>
-        <div v-else>
-            <router-link to="/login">Login</router-link>
-        </div>
-
-        <router-link to="/carrito">Carrito</router-link>  --> 
-
         <router-view/>
     </div>
 </template>
@@ -45,7 +39,6 @@
 <script>
 
 import {mapState} from 'vuex'
-
 //import FetchPost from './components/Home.vue'
 export default ({
     name:'Nav',
@@ -58,10 +51,22 @@ export default ({
   computed:{
       ...mapState([
           'sessionStorageUsuario',
-          'loginVar',  
+          'loginVar',
+        
       ]),
     },
 
+    mounted(){
+        this.emailVar = this.$store.commit('sessionEmailVar',sessionStorage.getItem("usuario_email"))
+     
+   
+      if(this.emailVar == null){
+            this.$store.commit('sessionStorageUsuario', false)    
+           
+        }else{
+            this.$store.commit('sessionStorageUsuario', true)   
+        }
+    },
   methods:{
    
       logout() {
@@ -69,23 +74,30 @@ export default ({
           sessionStorage.removeItem('usuario_email'); 
           localStorage.removeItem('arrayLocalStorage'); 
 
-      //    commit('loginVar', true)    
-          // commit('sessionStorageUsuario', false)
-          this.$router.push('/login')
+           this.$store.commit('cambiarLoginVar', false)    
+           this.$store.commit('sessionStorageUsuario', false)
+           this.$store.commit('loginVar', true)    
+
+           this.$router.push('/login')
       },
+
       irHome() {
-            
-            this.$router.push('/')
-        },
+
+        this.$router.replace({ name: "Home"}).catch(()=>{
+             'misma ruta'
+         });
+
+      },
 
       irLogin() {
-        
-        this.$router.push('/login')
+          this.$router.replace({ name: "Login"}).catch(()=>{
+             'misma ruta'
+         });
         },
-     irCarrito() {
-            
-            this.$router.push('Carrito')
-       },
+     irCarrito() {    
+           this.$router.replace({ name: "Carrito"}).catch(()=>{
+             'misma ruta'
+         });       },
        
     }
 })

@@ -160,7 +160,7 @@ export default {
         let data = localStorage.getItem("arrayLocalStorage");
         if(data != null){
           this.arrayProductosDeStorage = JSON.parse(data);
-          this.banderita = true;
+          //this.banderita = true;
         }
         this.cargarProductos();
      },
